@@ -3,9 +3,9 @@ import React from 'react'
 
 const Register = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen  bg-gray-200">
+    <div className="flex flex-col items-center justify-center p-20 mt-40  bg-gray-200">
       <h1 className="text-2xl font-bold mb-4 text-black">Đăng Ký</h1>
-      <form className="bg-white p-6 rounded shadow-md w-200">
+      <form className="bg-white p-6 rounded shadow-md w-96  ">
         <div className="mb-4">
           <label htmlFor="hoten" className="block text-sm font-medium text-gray-700">
             Họ Tên
@@ -81,6 +81,14 @@ const Register = () => {
         
           />
         </div>
+        <div class="flex items-start p-2">
+                      <div class="flex items-center h-5">
+                        <input id="terms" aria-describedby="terms" type="checkbox" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required=""/>
+                      </div>
+                      <div class="ml-3 text-sm ">
+                        <label for="terms" class="font-light text-black">I accept the <a class="font-medium text-primary-600 hover:underline dark:text-primary-500" href="#">Terms and Conditions</a></label>
+                      </div>
+                  </div>
         <button
           type="submit"
           className="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-500"
