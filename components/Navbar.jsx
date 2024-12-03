@@ -2,112 +2,146 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
 export const Navbar = () => {
-  const [userName, setUserName] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); 
+  const [cinemas, setCinemas] = useState([]);
+  const [userName, setUserName] = useState(null);
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          return;
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user_id');
+    if (token) {
+      const fetchUserProfile = async () => {
+        try {
+          const response = await axios.get(`http://localhost:4000/user/${storedUser}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          console.log(response.data);
+          setUserName(response.data.findUser.username);
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
         }
-        const response = await axios.get('http://localhost:8081/api/v1/auth/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        setUserName(response.data.email);
-        console.log("Profile fetched successfully");
-      } catch (error) {
-        console.log('Error fetching user profile:', error.response ? error.response.data : error.message);
-      }
-    };
-
-    fetchUserProfile();
+      };
+      fetchUserProfile();
+    }
   }, []);
+  useEffect(() => {
+    axios
+      .get("http://localhost:4000/cinemas")
+      .then((response) => {
+        setCinemas(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching cinemas:", error);
+      });
+  }, []);
+  const handleCinemaChange = (e) => {
+    const cinemaId = e.target.value;
+    console.log('Selected Cinema ID:', cinemaId);
+    localStorage.setItem('selectedCinema', cinemaId);
+    const selectedCinema = localStorage.getItem('selectedCinema');
+    console.log('Retrieved Cinema ID from localStorage:', selectedCinema);
+    window.location.reload();
+  };
 
-  const handleLogout = () => {
+  const handleLogout = () => {  
     localStorage.removeItem('token');
     setUserName('');
     setIsDropdownOpen(false); 
   };
 
   const toggleDropdown = () => {
-    setIsDropdownOpen(prev => !prev); // Đảo trạng thái của dropdown
+    setIsDropdownOpen(prev => !prev); 
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full z-[99998] bg-black text-white">
-      <div className="flex justify-end p-4">
-        <div className="relative">
-          {userName ? (
-            <>
-              <div className="text-white cursor-pointer" onClick={toggleDropdown}>
-                Xin chào, {userName} <span className="text-sm">▼</span>
-              </div>
-              {isDropdownOpen && (
-                <div className="absolute bg-white text-black right-0 mt-2 w-48 rounded-md shadow-lg">
-                  <Link href="/profile">
-                    <div className="p-2 hover:bg-gray-100">Hồ sơ cá nhân</div>
-                  </Link>
-                  <Link href="/order-history">
-                    <div className="p-2 hover:bg-gray-100">Lịch sử đặt hàng</div>
-                  </Link>
-                  <div className="p-2 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>
-                    Đăng xuất
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className=" space-x-4 ">
-              <Link href="/login" className="text-white ml-200 ">Đăng nhập</Link>
-              <Link href="/register" className="text-white">Đăng ký</Link>
+    <div className="fixed top-0 left-0 w-full z-[99998] bg-[#181518] text-white py-1">
+    <div className="flex justify-end p-4 border-b border-gray-700">
+      <div className="relative">
+        {userName ? (
+          <>
+            <div
+              className="text-white cursor-pointer hover:text-blue-400 transition duration-300"
+              onClick={toggleDropdown}
+            >
+              Xin chào, {userName} <span className="text-sm">▼</span>
             </div>
-          )}
-        </div>
-      </div>
-      <nav className="flex items-center p-4 bg-white">
-        <div className="relative">
-          <Link href="/">
-            <img src="/img/images.png" alt="Logo" className="h-20" />
-          </Link>
-        </div>
-        <div className="ml-10 w-52">
-          <select
-            id="province"
-            name="province"
-            className="ring ring-black ring-offset-2 block w-full h-10 px-3 rounded-lg border-2 text-sm text-gray-900 bg-gray-200 focus:outline-none"
-          >
-            <option value="1">Alpha Hà Nội</option>
-            <option value="2">Alpha Hồ Chí Minh</option>
-            <option value="3">Alpha Bắc Giang</option>
-            <option value="4">Alpha Bắc Ninh</option>
-          </select>
-        </div>
-        <div className="ml-auto">
-          <ul className="flex space-x-10">
-            {[
-              { name: 'Phim', path: 'movies' },
-              { name: 'Lịch chiếu', path: 'showtimes' },
-              { name: 'Rạp', path: 'cinemas' },
-              { name: 'Bảng Tin', path: 'news' },
-              { name: 'Thành Viên', path: 'members' },
-            ].map((item) => (
-              <li key={item.name} className="p-2 cursor-pointer transition duration-300 ease-in-out">
-                <Link href={`/${item.path}`} passHref>
-                  <span className="text-black uppercase font-bold hover:text-blue-600">
-                    {item.name}
-                  </span>
+            {isDropdownOpen && (
+              <div className="absolute bg-[#232323] text-white right-0 mt-2 w-48 rounded-md shadow-lg">
+                <Link href="/profile">
+                  <div className="p-2 hover:bg-gray-300 cursor-pointer transition">Hồ sơ cá nhân</div>
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
+                <Link href="/order-history">
+                  <div className="p-2 hover:bg-gray-300 cursor-pointer transition">Lịch sử đặt hàng</div>
+                </Link>
+                <div
+                  className="p-2 hover:bg-gray-300 cursor-pointer transition"
+                  onClick={handleLogout}
+                >
+                  Đăng xuất
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex space-x-4">
+            <Link href="/login" className="text-white hover:text-blue-400">
+              Đăng nhập
+            </Link>
+            <Link href="/register" className="text-white hover:text-blue-400">
+              Đăng ký
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
+  
+    {/* Navbar */}
+    <nav className="flex items-center px-4  bg-[#181518]">
+      <div className="relative">
+        <Link href="/">
+          <img src="/img/AlphaFilm.webp" alt="Logo" width={100} height={100} />
+        </Link>
+      </div>
+      <div className="ml-10 w-52">
+        <select
+          id="province"
+          name="province"
+          className="block w-full h-10 px-3 rounded-lg border-2 border-gray-600 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={handleCinemaChange}
+        >
+          {cinemas?.map((cinema) => (
+            <option key={cinema.cinema_id} value={cinema.cinema_id}>
+              {cinema.cinema_name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="ml-auto">
+        <ul className="flex space-x-10">
+          {[
+            { name: 'Phim', path: 'movies' },
+            { name: 'Lịch chiếu', path: 'showtimes' },
+            { name: 'Rạp', path: 'cinemas' },
+            { name: 'Bảng Tin', path: 'news' },
+            { name: 'Thành Viên', path: 'members' },
+          ].map((item) => (
+            <li
+              key={item.name}
+              className="p-2 cursor-pointer transition duration-300 ease-in-out"
+            >
+              <Link href={`/${item.path}`} passHref>
+                <span className="text-white uppercase font-bold hover:text-blue-400">
+                  {item.name}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  </div>
+  
   );
 };

@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { BsChevronCompactLeft, BsChevronCompactRight } from 'react-icons/bs'; 
-import { RxDotFilled } from 'react-icons/rx'; 
+
 
 function Slider() {
   const slides = [
     {
-      src: '/img/le-hoi-doi-ma-1702-x-621-170901-101024-19.png',
+      url: '/img/moanoan.jpg',
     },
     {
       url: '/img/z5959426229506-c7d3539d88024f520ccb323596167a36-145928-231024-88.jpg',
@@ -16,14 +16,9 @@ function Slider() {
       url: '/img/deal-hoang-hot-59k-1702x621-png-093147-200824-49.jpg',
     },
     {
-      url: '/img/moanoan.jpg',
+      url: '/img/le-hoi-doi-ma-1702-x-621-170901-101024-19.png',
     },
-    {
-      url: '/img/moanoan.jpg',
-    },
-    {
-      url: '/img/moanoan.jpg',
-    },
+  
     
     
   ];
