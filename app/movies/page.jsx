@@ -72,7 +72,7 @@ export default function ShowTimes() {
               style={{ flex: '0 0 auto' }}
             >
           
-              <div className="relative group cursor-pointer hover:scale-110 hover:z-10 transition-transform duration-300 ease-in-out">
+              <div className="relative  group cursor-pointer hover:scale-110 hover:z-10 transition-transform duration-300 ease-in-out ">
                 <img
                   src={movie.movie_poster}
                   alt={movie.movie_name}

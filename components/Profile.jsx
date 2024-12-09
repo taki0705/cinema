@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from 'react-toastify';
 
 const Profile = () => {
   const [oldPassword, setOldPassword] = useState('');
@@ -8,6 +10,7 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [activeTab, setActiveTab] = useState('account');
+  
   const [userProfile, setUserProfile] = useState({
     username: '',
     fullname: '',
@@ -19,6 +22,13 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  // const notifyinfo = () => {
+  //   toast.info('Vui lòng đăng nhập!', {
+  //     position: "button-center",
+  //     autoClose: 3000,
+  //     className: "z-[9999] !important",
+  //   });
+  // };
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -26,6 +36,11 @@ const Profile = () => {
         const storedUser = localStorage.getItem('user_id');
 
         if (!token) {
+          window.location.href = '/login';
+          // notifyinfo();
+          // SetTimeOut (()=>{
+            
+          // },1000)
           console.log('No token found');
           return;
         }
@@ -56,21 +71,17 @@ const Profile = () => {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-
     if (newPassword !== confirmPassword) {
       setPasswordError('Mật khẩu xác nhận không khớp');
       return;
     }
-
     try {
       const token = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user_id');
-
       if (!token) {
         console.log('No token found');
         return;
       }
-
       const response = await axios.post(
         `http://localhost:4000/user/${storedUser}/changepassword/`,
         { oldPassword, newPassword },
@@ -84,8 +95,6 @@ const Profile = () => {
 
       console.log('Password updated successfully:', response.data);
       alert('Mật khẩu đã được cập nhật!');
-
-      // Reset password fields
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -137,7 +146,9 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 justify-center items-center mt-40">
+     
       <div className="max-w-4xl w-full p-8 bg-white shadow-lg rounded-xl border-2 border-gray-300 transition-transform transform hover:scale-105">
+      <ToastContainer/>
         <div className="flex justify-between mb-6">
           <div
             className={`cursor-pointer text-2xl font-semibold px-6 py-2 transition-all ${

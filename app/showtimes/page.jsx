@@ -11,7 +11,22 @@ const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const modalRef = useRef(); 
 
-  // Fetch movies data
+  const isScheduleValid = (scheduleDate) => {
+    const today = new Date();
+    const scheduleStart = new Date(scheduleDate);
+  
+    const vietnamTimeZoneOffset = 7 * 60; 
+    today.setMinutes(today.getMinutes() + today.getTimezoneOffset() + vietnamTimeZoneOffset); 
+    scheduleStart.setMinutes(scheduleStart.getMinutes() + scheduleStart.getTimezoneOffset() + vietnamTimeZoneOffset);
+  
+    const threeDaysLater = new Date(today);
+    threeDaysLater.setDate(today.getDate() + 4); 
+    
+    if (scheduleStart >= today && scheduleStart <= threeDaysLater) {
+      return true;
+    }
+    return false;
+  };
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -28,13 +43,15 @@ const Page = () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:4000/schedules/${movieId}`);
-      console.log('Schedules data:', response.data);  
       if (response.data && Array.isArray(response.data.rooms)) {
-        setSchedules(response.data.rooms);  
+       
+        const filteredSchedules = response.data.rooms.filter(schedule =>
+          isScheduleValid(schedule.schedule_date)
+        );
+        setSchedules(filteredSchedules);  
       } else {
         console.error('Rooms data is not an array or does not exist');
       }
-      
       setSelectedMovie(movieId);
       setIsModalOpen(true);
     } catch (error) {

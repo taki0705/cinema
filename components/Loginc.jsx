@@ -1,20 +1,35 @@
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-
+import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from 'react-toastify';
 
 export const Loginc = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
+  
+  const notifyload = () => {
+    toast.loading('Đang Đăng nhập!', {
+      position: "top-center",
+      autoClose: 3000,
+      className: "z-[9999] !important",
+    });
+  };
+  const notifysuccess = () => {
+    toast.success(' Đăng nhập thành công!', {
+      position: "top-center",
+      autoClose: 3000,
+      className: "z-[9999] !important",
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     try {
       const response = await fetch('http://localhost:4000/login', {
         method: 'POST',
@@ -27,17 +42,22 @@ export const Loginc = () => {
       if (!response.ok) {
         throw new Error('Login failed. Please check your credentials.');
       }
-
       const data = await response.json();
-
+      console.log(data);
       if (data.token && data.user) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
-     window.location.reload();
+         notifyload(); 
+         
         setTimeout(() => {
-          window.location.href = '/'; 
-        }, 100);
+          notifysuccess();
+        }, 2000);
+        setTimeout(() => {
+          window.location.reload();  
+          window.location.href = '/';
+        }, 4000);
+        
+        
       } else {
         throw new Error('Invalid response format.');
       }
@@ -46,40 +66,43 @@ export const Loginc = () => {
     }
   };    
 
-  const handleGoogleLogin = async (response) => {
-    try {
-      const googleToken = response.credential; // Google token
-  
-      // Gửi token từ Google tới backend để xác thực và tạo token cho người dùng
-      const res = await axios.post('http://localhost:4000/google', 
-        { token: googleToken },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-  
-      const data = res.data; // Lấy dữ liệu trả về từ server
-  
-      if (data.token && data.user) {
-        // Lưu token và thông tin người dùng vào localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-  
-        // Chuyển hướng tới trang chủ sau khi đăng nhập thành công
-        router.push('/');
-      } else {
-        throw new Error('Google login failed.');
-      }
-    } catch (error) {
-      setError(error.message); // Hiển thị lỗi nếu có
-    }
+  const handleGoogleLogin = () => {
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:4000/google/callback&scope=profile%20email&client_id=72683119711-qeeeo0btckiv0ohisle4e1nb3kgslgj2.apps.googleusercontent.com`;
   };
+  const searchParams = useSearchParams();
+  useEffect(() => {
+      const fetchgoogle = async ()=>{
+      const searchToken = searchParams.get('token');
+      console.log(searchToken);
+      const response =  await axios.get('http://localhost:4000/login/success', {
+        withCredentials: true, 
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${searchToken}`,
+            },
+       
+          
+    });
+    
+    if (searchToken) {
+      localStorage.setItem('token',searchToken );
+      localStorage.setItem('username', response.data.user.username);
+       notifyload(); 
+      setTimeout(() => {
+        notifysuccess();
+      }, 2000);
+      setTimeout(() => {
+        window.location.reload();  
+        window.location.href = '/';
+      }, 4000);
+    }
+ } 
+
+
+ fetchgoogle();
+}, []);
   
-  
-  
-  
+    
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 mt-20">
@@ -127,13 +150,13 @@ export const Loginc = () => {
             Đăng Nhập bằng Google
           </button>
         </form>
-
+        <ToastContainer />
         <div className="mt-4 text-center">
           <Link href="/register" className="text-blue-600 hover:underline">Đăng Ký</Link>
         </div>
-
+  
         <div className="mt-2 text-center">
-          <Link href="/forgot-password" className="text-blue-600 hover:underline">Quên Mật Khẩu?</Link>
+          <Link href="/otp" className="text-blue-600 hover:underline">Quên Mật Khẩu?</Link>
         </div>
       </div>
     </div>

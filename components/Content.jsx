@@ -109,9 +109,9 @@ export default function Content() {
     <div>
       <h1 className="text-black text-3xl font-bold mb-6 text-center p-10  ">Phim sắp chiếu</h1>
       <div className="grid grid-cols-4 gap-6 items-center justify-center">
-        {movies.map(movie => (
-          <div>
-     <div key={movie.id} className="relative shadow-lg p-4 rounded-lg group">
+        {movies.map((movie) => (
+        <div key={movie.id}>
+       <div  className="relative shadow-lg p-4 rounded-lg group">
           <img
         src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
         alt={movie.title}
