@@ -1,14 +1,31 @@
 'use client'
 import React, { useState } from 'react';
-
+import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from 'react-toastify';
 const ForgetPassword = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState(1); // Bước: 1 - Nhập email, 2 - Nhập OTP
-
+  const [step, setStep] = useState(1); 
+  const [tokennew, setTokennew] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const notifysendsuccess = () => {
+    toast.success('Gửi OTP thành công!', {
+      position: "top-center",
+      autoClose: 2000,
+      className: "z-[9999] !important",
+    });
+  };
+  const notifychangesuccess = () => {
+    toast.success('Đổi mật khẩu thành công!', {
+      position: "top-center",
+      autoClose: 2000,
+      className: "z-[9999] !important",
+    });
+  };
   const handleSendEmail = async () => {
     try {
-      // Gửi email qua API
+     
       const response = await fetch('http://localhost:4000/forget-password', {
         method: 'POST',
         headers: {
@@ -16,10 +33,11 @@ const ForgetPassword = () => {
         },
         body: JSON.stringify({ email }),
       });
-
       if (response.ok) {
-        alert('OTP đã được gửi đến email của bạn.');
-        setStep(2); // Chuyển sang bước nhập OTP
+        const data = await response.json();
+        setTokennew(data.token);
+        notifysendsuccess();
+        setStep(2); 
       } else {
         throw new Error('Không thể gửi email. Vui lòng thử lại.');
       }
@@ -30,18 +48,16 @@ const ForgetPassword = () => {
 
   const handleVerifyOtp = async () => {
     try {
-      // Gửi OTP để xác nhận qua API
-      const response = await fetch('http://loco4000/verify-otp', {
+      const response = await fetch(`http://localhost:4000/reset-password/${tokennew}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ otp,password }),
       });
 
       if (response.ok) {
-        alert('OTP xác nhận thành công.');
-        window.location.href = '/forget-password'; // Chuyển hướng đến forget-password
+        notifychangesuccess();
       } else {
         throw new Error('OTP không chính xác.');
       }
@@ -49,7 +65,6 @@ const ForgetPassword = () => {
       console.error(error.message);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
@@ -72,21 +87,33 @@ const ForgetPassword = () => {
             </button>
           </>
         ) : (
-          // Giao diện bước 2: Nhập OTP
           <>
             <h2 className="text-xl font-bold mb-4 text-center">Nhập mã OTP</h2>
             <input
               type="text"
               placeholder="Nhập mã OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              value={otp}  onChange={(e) => setOtp(e.target.value)}
+              className="w-full p-2 border rounded mb-4"
+            />
+              <input
+              type="text"
+              placeholder="Nhập mật khẩu cần đổi"
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 border rounded mb-4"
+            />
+              <input
+              type="text"
+              placeholder="Xác nhận mật khẩu"
+              id="confirm-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full p-2 border rounded mb-4"
             />
             <button
               onClick={handleVerifyOtp}
               className="bg-green-500 text-white px-4 py-2 rounded w-full"
             >
-              Xác nhận OTP
+             Đổi mật khẩu
             </button>
           </>
         )}

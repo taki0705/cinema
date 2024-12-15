@@ -20,8 +20,8 @@ export default function Content() {
     fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}&page=${page}&language=en-US`)
       .then(response => response.json())
       .then(data => {
-        setMovies(data.results.slice(0, pageSize)); 
-        setTotalPages(data.total_pages);
+        setMovies(data.results.slice(0, 8)); 
+        setTotalPages(Math.ceil(20 / pageSize));
       })
       .catch(error => {
         console.error('Error fetching movies:', error);

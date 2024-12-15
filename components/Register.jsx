@@ -2,10 +2,9 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
 import axios from 'axios'
-import { useRouter } from 'next/navigation';
+
 import 'react-toastify/dist/ReactToastify.css';
 import { toast, ToastContainer } from 'react-toastify';
-
 
 const Register = () => {
   const [username, setuserName] = useState('')
@@ -15,7 +14,6 @@ const Register = () => {
   const [phone, setPhone] = useState('')
   const [isAgree, setIsAgree] = useState(false)
 
-  const router = useRouter()
   const notifysuccess = () => {
     toast.success('Đăng Ký thành công!', {
       position: "top-center",

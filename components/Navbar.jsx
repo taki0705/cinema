@@ -15,7 +15,7 @@ export const Navbar = () => {
     toast.info("Bạn đã đăng xuất ",{
       position:"top-right",
       className:"z-[9999]",
-      autoClose:3000
+      autoClose:1000
     })
   };
 
@@ -46,7 +46,7 @@ export const Navbar = () => {
       });
     const savedCinema = localStorage.getItem('selectedCinema');
     if (savedCinema) {
-      setSelectedCinema(savedCinema); // Set the saved cinema ID to the state
+      setSelectedCinema(savedCinema); 
     }
   }, []);
 
@@ -60,8 +60,12 @@ export const Navbar = () => {
 
   const handleLogout = () => {  
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userid');
     notiftlogout();
-    setUserName('');
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
     setIsDropdownOpen(false); 
   };
 
@@ -125,7 +129,7 @@ export const Navbar = () => {
             name="province"
             className="block w-full h-10 px-3 rounded-lg border-2 border-gray-600 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={handleCinemaChange}
-            value={selectedCinema} // Set the value to the state to keep the selected option persistent
+            value={selectedCinema} 
           >
             {cinemas?.map((cinema) => (
               <option key={cinema.cinema_id} value={cinema.cinema_id}>

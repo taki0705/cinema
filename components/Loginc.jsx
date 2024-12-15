@@ -1,16 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast, ToastContainer } from 'react-toastify';
+import { useSearchParams } from 'next/navigation';
 
 export const Loginc = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
   
   const notifyload = () => {
     toast.loading('Đang Đăng nhập!', {
@@ -40,13 +39,15 @@ export const Loginc = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Login failed. Please check your credentials.');
+        throw new Error('Thông tin tài khoản mật khẩu không chính xác.');
       }
       const data = await response.json();
       console.log(data);
       if (data.token && data.user) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('username',data.user.username);
+        localStorage.setItem('userid', JSON.stringify(data. user.user_id));
+      
          notifyload(); 
          
         setTimeout(() => {
@@ -72,21 +73,21 @@ export const Loginc = () => {
   const searchParams = useSearchParams();
   useEffect(() => {
       const fetchgoogle = async ()=>{
-      const searchToken = searchParams.get('token');
+        const searchToken = searchParams.get('token');
+          if (searchToken) {
+    
       console.log(searchToken);
-      const response =  await axios.get('http://localhost:4000/login/success', {
+      const response = await axios.get('http://localhost:4000/login/success', {
         withCredentials: true, 
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${searchToken}`,
-            },
-       
-          
+            },       
     });
-    
-    if (searchToken) {
+  
       localStorage.setItem('token',searchToken );
       localStorage.setItem('username', response.data.user.username);
+      localStorage.setItem('userid', response.data.user.user_id);
        notifyload(); 
       setTimeout(() => {
         notifysuccess();

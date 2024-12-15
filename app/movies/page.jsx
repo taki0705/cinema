@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 
-export default function ShowTimes() {
+export default function Movies() {
   const [movies, setMovies] = useState([]);
   const [trailer, setTrailer] = useState(null);
   const [loading, setLoading] = useState(false);
