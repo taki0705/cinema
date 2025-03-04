@@ -12,13 +12,13 @@ export const Loginc = () => {
   const [error, setError] = useState('');
   
   const notifyload = () => {
-    toast.loading('Đang Đăng nhập!', {
+    toast.loading('Đang Đăng nhập!', {  
       position: "top-center",
       autoClose: 3000,
       className: "z-[9999] !important",
     });
   };
-  const notifysuccess = () => {
+  const notifysuccess = () => { 
     toast.success(' Đăng nhập thành công!', {
       position: "top-center",
       autoClose: 3000,
@@ -30,7 +30,7 @@ export const Loginc = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('http://localhost:4000/login', {
+      const response = await fetch('http://localhost:8080/api/v1/auth/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,13 +43,13 @@ export const Loginc = () => {
       }
       const data = await response.json();
       console.log(data);
-      if (data.token && data.user) {
+      if (data.token && data.username) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('username',data.user.username);
-        localStorage.setItem('userid', JSON.stringify(data. user.user_id));
-      
+        localStorage.setItem('username',data.username);
+        localStorage.setItem('userid', data.userid);
+        localStorage.setItem('email', data.email);
+        console.log(data.userid);  console.log(data.email);
          notifyload(); 
-         
         setTimeout(() => {
           notifysuccess();
         }, 2000);
@@ -57,8 +57,6 @@ export const Loginc = () => {
           window.location.reload();  
           window.location.href = '/';
         }, 4000);
-        
-        
       } else {
         throw new Error('Invalid response format.');
       }
@@ -66,7 +64,6 @@ export const Loginc = () => {
       setError(error.message);
     }
   };    
-
   const handleGoogleLogin = () => {
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:4000/google/callback&scope=profile%20email&client_id=72683119711-qeeeo0btckiv0ohisle4e1nb3kgslgj2.apps.googleusercontent.com`;
   };
@@ -75,7 +72,6 @@ export const Loginc = () => {
       const fetchgoogle = async ()=>{
         const searchToken = searchParams.get('token');
           if (searchToken) {
-    
       console.log(searchToken);
       const response = await axios.get('http://localhost:4000/login/success', {
         withCredentials: true, 
@@ -84,10 +80,11 @@ export const Loginc = () => {
             Authorization: `Bearer ${searchToken}`,
             },       
     });
-  
       localStorage.setItem('token',searchToken );
-      localStorage.setItem('username', response.data.user.username);
-      localStorage.setItem('userid', response.data.user.user_id);
+      localStorage.setItem('username', response.username);
+      localStorage.setItem('userid', response.userid);
+   
+      console.log(response);
        notifyload(); 
       setTimeout(() => {
         notifysuccess();
@@ -98,13 +95,8 @@ export const Loginc = () => {
       }, 4000);
     }
  } 
-
-
  fetchgoogle();
 }, []);
-  
-    
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 mt-20">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
@@ -119,7 +111,7 @@ export const Loginc = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+                required
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -135,7 +127,6 @@ export const Loginc = () => {
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold py-2 rounded-md transition-all hover:from-orange-500 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

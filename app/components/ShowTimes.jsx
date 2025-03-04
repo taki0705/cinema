@@ -10,8 +10,10 @@ const ShowTimes = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cinema, setCinemaId] = useState(null);
   const modalRef = useRef();
   const router = useRouter();
+
   const isScheduleValid = (scheduleDate) => {
     const today = new Date();
     const scheduleStart = new Date(scheduleDate);
@@ -32,28 +34,34 @@ const ShowTimes = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/movies`);
-        setMovies(response.data.movie);
+        const response = await axios.get(`http://localhost:8080/movie/all`);
+        setMovies(response.data);
       } catch (error) {
         console.error('Error fetching movies:', error);
       }
     };
-    fetchMovies();
+    fetchMovies();  
   }, []);
 
   const fetchSchedules = async (movieId) => {
     setLoading(true);
+    
     try {
-      const response = await axios.get(`http://localhost:4000/schedules/${movieId}`);
-      if (response.data && Array.isArray(response.data.rooms)) {
-        const filteredSchedules = response.data.rooms.filter(schedule =>
+      const storedCinemaId = localStorage.getItem('selectedCinema'); // 
+      if (!storedCinemaId) {
+        console.error('Cinema ID not found in localStorage');
+        return;
+      }
+      const response = await axios.get(`http://localhost:8080/schedule/${storedCinemaId}/${movieId}`);
+      if (response.data && Array.isArray(response.data)) {
+        const filteredSchedules = response.data.filter(schedule =>
           isScheduleValid(schedule.schedule_date)
         );
         setSchedules(filteredSchedules);
       } else {
         console.error('Rooms data is not an array or does not exist');
       }
-      setSelectedMovie(movieId);
+      setSelectedMovie(movieId);  
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error fetching schedules:', error);
@@ -90,7 +98,7 @@ const ShowTimes = () => {
   return (
     <div className="mt-44 px-4">
       <h1 className="text-center text-2xl font-bold text-gray-700 mb-8">Xem lịch chiếu</h1>
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-20">
         {movies.map((movie) => (
           <div
             key={movie.movie_id}
@@ -118,7 +126,7 @@ const ShowTimes = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
           <div ref={modalRef} className="bg-white rounded-lg shadow-md p-8 max-w-xl w-full">
             <h2 className="text-center text-2xl font-bold text-gray-700 mb-6">Lịch chiếu 3 ngày gần nhất</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  ">
               {Array.isArray(schedules) && schedules.length > 0 ? (
                 schedules.map((schedule) => (
                   <div key={schedule.schedule_id} className="bg-white rounded-lg shadow-md p-5">

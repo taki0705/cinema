@@ -1,3 +1,4 @@
+'use cilent'
 const Page = () => {
   const news = [
     {

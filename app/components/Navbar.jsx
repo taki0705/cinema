@@ -37,7 +37,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/cinemas")
+      .get("http://localhost:8080/cinema/all")
       .then((response) => {
         setCinemas(response.data);
       })

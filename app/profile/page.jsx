@@ -1,4 +1,5 @@
-import Profile from '@/components/Profile'
+'use cilent'
+import Profile from '@/app/components/Profile'
 import React from 'react'
 
 const page = () => {

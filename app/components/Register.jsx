@@ -33,13 +33,13 @@ const Register = () => {
       phone
   )
     try {
-      const response = await axios.post('http://localhost:4000/register', {
+      const response = await axios.post('http://localhost:8080/api/v1/auth/signup', {
         email,
         username,
         password,
         phone,
       })
-      notifysuccess();
+      notifysuccess(); 
       setTimeout(() => {  
         window.location.href = '/login';
       }, 3000);

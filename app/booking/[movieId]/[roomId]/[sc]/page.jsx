@@ -1,6 +1,6 @@
-import Booking from '@/components/Booking'
+'use cilent'
+import Booking from '@/app/components/Booking'
 import React from 'react'
-import Cinema from '@/components/Cinema'
 const page = () => {
   return (
     <Booking/>

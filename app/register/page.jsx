@@ -1,6 +1,6 @@
-import { Navbar } from '@/components/Navbar'
-import Register from '@/components/Register'
-import Link from 'next/link'
+'use cilent'
+import Register from '@/app/components/Register'
+
 import React from 'react'
 
 const page = () => {

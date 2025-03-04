@@ -76,7 +76,7 @@ const ForgetPassword = () => {
               type="email"
               placeholder="Nhập email của bạn"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2 border rounded mb-4"
             />
             <button

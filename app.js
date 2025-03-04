@@ -2,7 +2,7 @@ const express = require('express');
 const connection = require('./app/database/db'); 
 
 const app = express();
-const PORT = 4000;
+const PORT = 8080;
 
 // Định nghĩa một route để lấy dữ liệu
 app.get('/api/seats', (req, res) => {

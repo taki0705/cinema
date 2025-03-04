@@ -7,15 +7,15 @@ export default function Movies() {
   const [trailer, setTrailer] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0); // To track current position in the carousel
-  const moviesPerPage = 5; // Show 5 movies at a time (including the center one)
+  const [currentIndex, setCurrentIndex] = useState(0); 
+  const moviesPerPage = 5;  
 
   useEffect(() => {
-    fetch(`http://localhost:4000/movies`)
+    fetch(`http://localhost:8080/movie/all`)
       .then(response => response.json())
       .then(data => {
-        setMovies(data.movie);
-        console.log(data.movie);
+        setMovies(data);
+        console.log(data);
       })
       .catch(error => {
         console.error('Error fetching movies:', error);

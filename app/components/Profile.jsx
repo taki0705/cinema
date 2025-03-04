@@ -6,11 +6,12 @@
 
   const Profile = () => {
     const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [password, setPassword] = useState('');
+    const [repeatPassword, setrepeatPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [activeTab, setActiveTab] = useState('account');
     const [alldetail, SetAlldetail] = useState([]);
+  
     const [userProfile, setUserProfile] = useState({
       username: '',
       fullname: '',
@@ -22,7 +23,7 @@
     });
     const [loading, setLoading] = useState(true);
     const notifysucess = ()=>{
-      toast.sucess('Cập nhập mật khẩu thành công',{
+      toast.success('Cập nhập mật khẩu thành công',{
           position:"top-center",
           autoClose: 3000,
           className: "z-[9999] !important",
@@ -34,26 +35,25 @@
           className: "z-[9999] !important",
         });
       };
-   
-    
+  
     
     useEffect(() => {
      
       const storedUser = localStorage.getItem('userid');
+      console.log(storedUser);
       const fetchallDetails = async () => {
         try {
           if (storedUser) {
-            const response =await axios.get(`http://localhost:4000/bookings/detail/${storedUser}`);
-            console.log(response.data.bookings);
-            SetAlldetail(response.data.bookings); 
+            const response =await axios.get(`http://localhost:8080/booking/detail/${storedUser}`);
+            console.log(response.data);
+            SetAlldetail(response.data); 
           }
         } catch (error) {
           console.error('Error fetching schedule details:', error);
-        } finally {
+        } finally { 
           setLoading(false);
         }
       };
-  
      fetchallDetails();
     }, []);
     
@@ -71,20 +71,22 @@
             console.log('No token found');
             return;
           }
-          const response = await axios.get(`http://localhost:4000/user/${storedUser}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+          const response = await axios.get(`http://localhost:8080/user/${storedUser}`, {
+            // headers: {
+            //   Authorization: `Bearer ${token}`,
+            // },
           });
-          const user = response.data.findUser;
+          console.log(response);
+          const user = response;
           setUserProfile({
-            username: user.username || '',
-            fullname: user.fullname || '',
-            phone: user.phone || '',
-            email: user.email || '',
-            gender: user.gender || '',
-            birthday: user.birthday || '',
-            city: user.city || '',
+            
+            username: user.data.username || '',
+            fullname: user.data.fullname || '',
+            phone: user.data.phone || '',
+            email: user.data.email || '',
+            gender: user.data.gender || '',
+            birthday: user.data.birthday || '',
+            city: user.data.city || '',
           });
           setLoading(false);
         } catch (error) {
@@ -96,36 +98,33 @@
       fetchUserProfile();
     }, []);
     const handlePasswordChange = async (e) => {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('userid');
+      const email = localStorage.getItem('email');
+      console.log(email);
       e.preventDefault();
-      if (newPassword !== confirmPassword) {
+      if (password !== repeatPassword) {
         setPasswordError('Mật khẩu xác nhận không khớp');
         return;
       }
       try {
-        if (!token) {
-          console.log('No token found');
-          return;
-        }
+       
         const response = await axios.post(
-          `http://localhost:4000/user/${storedUser}/changepassword/`,
-          { oldPassword, newPassword },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
+          `http://localhost:8080/forgotPassword/changePassword/${email}`,
+          { oldPassword, password ,repeatPassword},
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //     'Content-Type': 'application/json',
+          //   },
+          // }
         );
-
         console.log('Password updated successfully:', response.data);
         notifysucess();
         setOldPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        setPassword('');
+        setrepeatPassword('');
         setPasswordError('');
       } catch (error) {
+        console.log(oldPassword);
         console.error('Error updating password:', error.response ? error.response.data : error.message);
         setPasswordError('Mật khẩu cũ không chính xác')
       }
@@ -149,14 +148,14 @@
           return;
         }
         const response = await axios.put(
-          `http://localhost:4000/user/${storedUser}`,
-          userProfile,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
+          `http://localhost:8080/user/update/${storedUser}`,
+          userProfile
+          // {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //     'Content-Type': 'application/json',
+          //   },
+          // }
         );
         notifyupdatesuccess();
       } catch (error) {
@@ -298,10 +297,10 @@
             <div>
               <form onSubmit={handlePasswordChange}>
                 <div className="mb-4">
-                  <label htmlFor="oldPassword" className="text-gray-700">Mật khẩu cũ</label>
+                  <label htmlFor="password" className="text-gray-700">Mật khẩu cũ</label>
                   <input
                     type="password"
-                    id="oldPassword"
+                    id="password"
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     className="border-2 border-gray-400 text-black p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -313,19 +312,19 @@
                   <input
                     type="password"
                     id="newPassword"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="border-2 border-gray-400 text-black p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
                 <div className="mb-4">
-                  <label htmlFor="confirmPassword" className="text-gray-700">Xác nhận mật khẩu mới</label>
+                  <label htmlFor="repeatPassword" className="text-gray-700">Xác nhận mật khẩu mới</label>
                   <input
                     type="password"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    id="repeatPassword"
+                    value={repeatPassword}
+                    onChange={(e) => setrepeatPassword(e.target.value)}
                     className="border-2 border-gray-400 text-black p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
@@ -359,17 +358,17 @@
     </thead>
     <tbody>
               {alldetail.length > 0 ? (
-                   alldetail.map((booking, index) => {
-                               const uniqueSeats = Array.from(new Set(booking.seat_names.split(',').map(seat => seat.trim()))).join(', ');
+                   alldetail?.map((data, index) => {
+                               
                                 return (
                                   <tr key={index} className="border-b">
-                                    <td className="p-2">{booking.booking_id}</td>
-                                    <td className="p-2">{uniqueSeats}</td>
-                                    <td className="p-2">{booking.room_name}</td>
-                                    <td className="p-2">{booking.cinema_name}</td>
-                                    <td className="p-2">{booking.schedule_date}</td>
-                                    <td className="p-2">{booking.schedule_start}</td>
-                                    <td className="p-2">{new Intl.NumberFormat('vi-VN').format(booking.total_price)} VND</td>
+                                    <td className="p-2">{data.bookingId}</td>
+                                    <td className="p-2">{data.seatNames}</td>
+                                    <td className="p-2">{data.roomName}</td>
+                                    <td className="p-2">{data.cinemaName}</td>
+                                    <td className="p-2">{data.scheduleDate}</td>
+                                    <td className="p-2">{data.scheduleStart}</td>
+                                    <td className="p-2">{new Intl.NumberFormat('vi-VN').format(data.totalPrice)} VND</td>
 
                                   </tr>
                                 );

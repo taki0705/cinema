@@ -16,40 +16,39 @@ const Cinema = () => {
   }, []);
   useEffect(() => {
     if (cinemaId) {
-      fetch(`http://localhost:4000/cinema/${cinemaId}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => setCinemaData(data))
+      fetch(`http://localhost:8080/cinema/${cinemaId}`)
+      .then(response => response.json())
+      .then(data => {
+        setCinemaData(data);
+        console.log(data);  
+      })
+       
         .catch((error) => console.error('Error fetching cinema data:', error));
     }
   }, [cinemaId]);
 
-  // Fetching movie data
+
   useEffect(() => {
-    fetch(`http://localhost:4000/movies`)
+    fetch(`http://localhost:8080/movie/all`)
       .then(response => response.json())
       .then(data => {
-        setMovies(data.movie);
-        console.log(data.movie);  
+        setMovies(data);
+        console.log(data);  
       })
       .catch(error => {
         console.error('Error fetching movies:', error);
       });
   }, []);
 
-  if (!cinemaData || movies.length === 0) {
-    return <div>Loading...</div>;
+  if (!cinemaData) {
+    return <div>Loading...</div>; 
   }
 
   return (
     <div className="flex mt-40 py-20 px-20">
       <div className="w-1/2 bg-gray-100 p-4">
         <h2 className="text-xl font-bold mb-4">{cinemaData.cinema_name}</h2>
-        <img src={cinemaData.cinema_address} alt={cinemaData.cinema_name} />
+        <img src={cinemaData.cinema_img} alt={cinemaData.cinema_name} />
         <p>{cinemaData.cinema_details}</p>
       </div>
 

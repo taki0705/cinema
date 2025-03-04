@@ -14,7 +14,7 @@ const MovieDetails = () => {
     const fetchMovieDetails = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:4000/movies/${id}`);
+        const response = await fetch(`http://localhost:8080/movie/${id}`);
         if (!response.ok) throw new Error('Failed to fetch movie details');
         const data = await response.json();
         setMovie(data);  

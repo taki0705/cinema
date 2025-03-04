@@ -1,6 +1,6 @@
 
 import React from 'react'
-import ShowTimes from '@/components/ShowTimes'
+import ShowTimes from '@/app/components/ShowTimes'
 
 const page = () => {
   return (

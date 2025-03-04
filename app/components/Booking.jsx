@@ -5,7 +5,7 @@
   import 'react-toastify/dist/ReactToastify.css';
   import { toast,ToastContainer } from 'react-toastify'; 
   const Booking = () => {
-    const [totall, settotall] = useState([]);  
+   
     const [seats, setSeats] = useState([]);  
     const [seatsexisted, setSeatsexisted] = useState([]);  
     const [movie, setMovie] = useState(null);
@@ -42,7 +42,7 @@
         setLoading(true);
         try {
           if (movieId) {
-            const response = await fetch(`http://localhost:4000/movies/${movieId}`);
+            const response = await fetch(`http://localhost:8080/movie/${movieId}`);
             if (!response.ok) throw new Error('Failed to fetch movie details');
             const data = await response.json();
             setMovie(data);
@@ -68,23 +68,19 @@
         const parsedUser = JSON.parse(userr);
         SetUserId(parsedUser);
       }
-    }, []);
+    }, []); 
     useEffect(() => {
       const fetchallseat = async () => {
         const cinemaiddd = localStorage.getItem('selectedCinema');
         console.log(cinemaiddd);
         try {
           console.log(cinemaiddd);
-            const response =await axios.get(`http://localhost:4000/seats/bookingcinema/${cinemaiddd}`);
-          
-          
-          // Lưu dữ liệu vào state seatmovie
+            const response =await axios.get(`http://localhost:8080/seats/bookingcinema/${cinemaiddd}`);
           if (!response.data || !response.data.bookings) {
             console.warn("No bookings found for the provided cinema ID");
             Setseatmovie([]); 
             return;
           } 
-
           // Trích xuất seat_ids nếu bookings tồn tại
           if (response.data.bookings) {
             const seatIds = response.data.bookings.flatMap(booking => booking.seat_ids);
@@ -92,7 +88,6 @@
             console.log('API Response:', seatIds);
             console.log(seatmovie);
           }
-          
         } catch (error) {
           console.error('Error fetching schedule details:', error);
         } 
@@ -109,11 +104,10 @@
       const fetchScheduleDetails = async () => {
         try {
           if (sc) {
-            const response =await axios.get(`http://localhost:4000/schedules/sc/${sc}`);
-            console.log(response);
-            if (response.data.rooms.length > 0) {
-              setSchedule(response.data.rooms[0]); 
-            }
+            const response =await axios.get(`http://localhost:8080/schedule/sc/${sc}`);
+            console.log(response.data);
+              setSchedule(response.data); 
+            
           }
         } catch (error) {
           console.error('Error fetching schedule details:', error);
@@ -126,26 +120,28 @@
     }, [sc]);
 
     useEffect(() => {
-      if (roomId) {
+      if (sc) {
         const fetchSeats = async () => {
           try {
-            const response = await axios.get(`http://localhost:4000/seats/${roomId}`);
-            setSeats(response.data.seats);  // Get the seat data for the room
+            const response = await axios.get(`http://localhost:8080/seat/${sc}`);
+            console.log(response.data);
+            setSeats(response.data); 
+        
           } catch (error) {
             console.error('Error fetching seat data:', error);
           }
         };
         fetchSeats();
       }
-    }, [roomId]);
+    }, [sc]);
 
     
     useEffect(() => {
       if (sc) {
         const fetchSeats = async () => {
           try {
-            const response = await axios.get(`http://localhost:4000/booking/schedule/${sc}`);
-            setSeatsexisted(response.data.bookings);
+            const response = await axios.get(`http://localhost:8080/booking/schedule/${sc}`);
+            setSeatsexisted(response.data);
             // console.log(seatsexisted.seat_id);
           } catch (error) {
             console.error('Error fetching seat data:', error);
@@ -156,7 +152,7 @@
     },[sc]);
     useEffect(() => {
       if (cinemaid) {
-        fetch(`http://localhost:4000/cinema/${cinemaid}`)
+        fetch(`http://localhost:8080/cinema/${cinemaid}`)
           .then((response) => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
@@ -171,49 +167,60 @@
     
 
     const handleBooking = async () => {
-      console.log(selectedSeats);
-      try {const totalPrice = calculateTotalPrice();
+      console.log("Selected Seats:", selectedSeats);
+      try {
+        const totalPrice = calculateTotalPrice();
+        console.log("Calculated Total Price:", totalPrice);
+    
+        const payload = JSON.stringify({
+          seatIds: selectedSeats,
+          totalPrice: totalPrice
+        });
+        console.log("Payload to send:", payload);
+    
         const response = await axios.post(
-          `http://localhost:4000/booking/${userid}/${sc}`,
+          `http://localhost:8080/booking/${userid}/${sc}`,
+          payload,
           {
-            seat_ids: selectedSeats,
-            total_price: totalPrice,
+            headers: {
+              "Content-Type": "application/json"
+            }
           }
         );
-          SetBooKing(response.data.booking_id); 
-          console.log(Booking);
-          // notifysucess();  
-        
     
+        console.log("Response:", response.data);
+        SetBooKing(response.data.booking_id);  
       } catch (error) {
-        // Handle errors (e.g., network issues, server errors)
-        console.error('Error booking the seats:', error);
-        alert('Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+        console.error("Error booking the seats:", error);
+        alert("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
       }
     };
+    
+        // const handleBooking2 = async () => {
+        //   try {   
+        //     const paymentResponse = await axios.get(`http://localhost:4000/payment/${Booking}`);
+        //     const payUrll  = paymentResponse.data.payUrl;
+        //     console.log('Payment URL:', payUrll);
+        //     window.location.href = payUrll;
+        //     notifysucess();
+        //   } catch (error) {
+        //     console.error('Booking failed:', error);
+        //   }
+        // };
         const handleBooking2 = async () => {
           try {
-            
-            const paymentResponse = await axios.get(`http://localhost:4000/payment/${Booking}`);
-            const payUrll  = paymentResponse.data.payUrl;
-            console.log('Payment URL:', payUrll);
-            window.location.href = payUrll;
             notifysucess();
           } catch (error) {
             console.error('Booking failed:', error);
           }
         };
-
-
-    
         const calculateTotalPrice = () => {
           const total = selectedSeats.reduce((total, seatId) => {
-            const seat = seats.find((s) => s.seat_id === seatId);
-          
+            const seat = seats.find((s) => s.seat_id === seatId);  
             if (seat && !isSeatSold(seat.seat_id)) {
               return total + (seat?.seat_price || 0);
-            }
-           
+            } 
+            
           }, 0);
           return total;
         }
@@ -233,13 +240,6 @@
     const isSeatSold = (seatId) => {
       return seatmovie.includes(seatId);
     };
-    
-
-
-    
-    
-    
-
     if (loading) return <div>Loading...</div>;
 
     return (
@@ -248,7 +248,6 @@
         <div className="max-w-7xl mx-auto p-6 bg-white shadow-lg rounded-lg flex">
           <div className="flex-1 mb-6 pr-4">
             <h2 className="text-3xl font-semibold text-gray-700">Đặt vé</h2>
-
             <div className="mb-6 flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-gray-300 rounded"></div>
@@ -277,7 +276,6 @@
             <div className="mb-6">
               <div className="grid grid-cols-10 gap-2">
                 {Array.isArray(seats) && seats.map((seat) => (
-                  
                   <div
                     key={seat.seat_id}
                     onClick={() => handleSeatClick(seat)}
@@ -286,7 +284,7 @@
                       ${seat.seat_type  === 'Thường' ? 'bg-gray-300' : ''}
                       ${seat.seat_type === 'VIP' ? 'border-2 border-gold bg-yellow-300' : ''}
                       ${seat.seat_type === 'Couple' ? 'bg-pink-300' : ''}
-                      ${!isSeatSold(seat.seat_id) && selectedSeats.includes(seat.seat_id) ? 'bg-blue-800 text-white' : ''}
+                      ${!isSeatSold(seat.seat_id) && selectedSeats.includes(seat.seat_id) ? 'bg-blue-900 text-white' : ''}
                     
                     `}
                   >
@@ -345,7 +343,7 @@
             <div><strong>Ngày chiếu:</strong> {new Date(schedule?.schedule_date).toLocaleDateString('vi-VN')}</div>
             <div><strong>Giờ chiếu:</strong> {schedule?.schedule_start}</div>
             <div><strong>Phòng chiếu:</strong> {schedule?.room_id}</div>
-            <div><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</div>
+            {/* <div><strong>Ghế ngồi:</strong> {selectedSeats.join(', ')}</div> */}
           </div>
         </div>
       </div>
